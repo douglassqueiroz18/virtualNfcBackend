@@ -1,4 +1,5 @@
 package com.virtualnfc.backendproject.dto;
+import java.time.LocalDateTime;
 
 public class PageRequestDTO {
 
@@ -12,6 +13,7 @@ public class PageRequestDTO {
     private String youtube;
     private String site;
     private String prototipo;
+    private LocalDateTime createdAt;
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
@@ -42,4 +44,6 @@ public class PageRequestDTO {
 
     public String getPrototipo() { return prototipo; }
     public void setPrototipo(String prototipo) { this.prototipo = prototipo; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }

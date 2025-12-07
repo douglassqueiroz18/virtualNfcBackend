@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200") // Apenas UM
@@ -35,7 +39,7 @@ public class CartoesController {
             page.setTiktok(dto.getTiktok());
             page.setYoutube(dto.getYoutube());
             page.setSite(dto.getSite());
-
+            page.setPrototipo(dto.getPrototipo());
             PageData saved = repository.save(page);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -62,4 +66,40 @@ public class CartoesController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @GetMapping("/prototipo/check/{id}")
+    public ResponseEntity<?> checkPrototipo(@PathVariable Long id) {
+        Optional<PageData> optional = repository.findById(id);
+
+        if (optional.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("expired", 1));
+        }
+
+        PageData page = optional.get();
+
+        // SE NÃO É PROTÓTIPO
+        if (!"1".equals(page.getPrototipo())) {
+            return ResponseEntity.ok(Map.of(
+                    "prototype", 0 // <--- 0 = não é protótipo
+            ));
+        }
+
+         // SE É PROTÓTIPO → calcular expiração
+        LocalDateTime created = page.getCreatedAt();
+        LocalDateTime expiresAt = created.plusHours(24);
+        LocalDateTime now = LocalDateTime.now();
+
+        boolean isExpired = now.isAfter(expiresAt);
+
+        long remaining = Duration.between(now, expiresAt).toSeconds();
+        if (remaining < 0) remaining = 0;
+
+        return ResponseEntity.ok(Map.of(
+                "prototype", 1,           // <--- 1 = é protótipo
+                "expired", isExpired ? 1 : 0,
+                "remainingSeconds", remaining,
+                "expireAt", expiresAt.toString(),
+                "page", isExpired ? null : page
+        ));
+    }
+
 }

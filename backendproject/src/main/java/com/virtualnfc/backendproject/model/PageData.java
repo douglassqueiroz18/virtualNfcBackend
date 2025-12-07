@@ -1,6 +1,7 @@
 package com.virtualnfc.backendproject.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cartoes")
@@ -10,6 +11,12 @@ public class PageData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+    
 
     private String type;
 
@@ -22,6 +29,7 @@ public class PageData {
     private String youtube;
     private String site;
     private String prototipo;
+    private LocalDateTime createdAt;
     public PageData() {}
 
     public Long getId() { return id; }
@@ -56,4 +64,8 @@ public class PageData {
 
     public String getPrototipo() { return prototipo; }
     public void setPrototipo(String prototipo) { this.prototipo = prototipo; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    
 }
