@@ -61,4 +61,5 @@ public class ProdutosController {
         repository.deleteById(id);
         return ResponseEntity.ok().body("Produto removido: " + id);
     }
+
 }
