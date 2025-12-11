@@ -66,40 +66,60 @@ public class CartoesController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @GetMapping("/prototipo/get/{id}")
+    public ResponseEntity<PageData> getByPrototipoById(@PathVariable Long id) {
+        return repository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
     @GetMapping("/prototipo/check/{id}")
-    public ResponseEntity<?> checkPrototipo(@PathVariable Long id) {
-        Optional<PageData> optional = repository.findById(id);
+public ResponseEntity<?> checkPrototipo(@PathVariable Long id) {
+    Optional<PageData> optional = repository.findById(id);
 
-        if (optional.isEmpty()) {
-            return ResponseEntity.status(404).body(Map.of("expired", 1));
-        }
+    if (optional.isEmpty()) {
+        return ResponseEntity.status(404).body(Map.of("expired", 1));
+    }
 
-        PageData page = optional.get();
+    PageData page = optional.get();
 
-        // SE NÃO É PROTÓTIPO
-        if (!"1".equals(page.getPrototipo())) {
-            return ResponseEntity.ok(Map.of(
-                    "prototype", 0 // <--- 0 = não é protótipo
-            ));
-        }
-
-         // SE É PROTÓTIPO → calcular expiração
-        LocalDateTime created = page.getCreatedAt();
-        LocalDateTime expiresAt = created.plusHours(24);
-        LocalDateTime now = LocalDateTime.now();
-
-        boolean isExpired = now.isAfter(expiresAt);
-
-        long remaining = Duration.between(now, expiresAt).toSeconds();
-        if (remaining < 0) remaining = 0;
-
+    // NÃO É protótipo
+    if (!"1".equals(page.getPrototipo())) {
         return ResponseEntity.ok(Map.of(
-                "prototype", 1,           // <--- 1 = é protótipo
-                "expired", isExpired ? 1 : 0,
-                "remainingSeconds", remaining,
-                "expireAt", expiresAt.toString(),
-                "page", isExpired ? null : page
+                "prototype", 0,
+                "expired", 0
         ));
     }
 
+    // É protótipo → calcular expiração
+    LocalDateTime created = page.getCreatedAt();
+    LocalDateTime expiresAt = created.plusHours(24);
+    LocalDateTime now = LocalDateTime.now();
+
+    boolean isExpired = now.isAfter(expiresAt);
+
+    // SE EXPIRADO → DELETAR
+    if (isExpired) {
+        repository.deleteById(id);
+        return ResponseEntity.ok(Map.of(
+                "prototype", 1,
+                "expired", 1,
+                "deleted", true,
+                "remainingSeconds", 0,
+                "message", "Protótipo expirado e removido."
+        ));
+    }
+
+    // NÃO expirou → calcular quanto falta
+    long remaining = Duration.between(now, expiresAt).toSeconds();
+    if (remaining < 0) remaining = 0;
+
+    return ResponseEntity.ok(Map.of(
+            "prototype", 1,
+            "expired", 0,
+            "deleted", false,
+            "remainingSeconds", remaining,
+            "expireAt", expiresAt.toString(),
+            "page", page
+    ));
+}
 }
