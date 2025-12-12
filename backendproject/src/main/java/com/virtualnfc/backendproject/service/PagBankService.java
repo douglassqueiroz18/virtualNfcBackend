@@ -68,4 +68,28 @@ public class PagBankService {
 
         return response.getBody();
     }
+public String getPublicKey() {
+    String url = "https://sandbox.api.pagseguro.com/public-keys";
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(token);
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    // BODY OBRIGATÓRIO!
+    Map<String, Object> body = Map.of("type", "card");
+
+    HttpEntity<Map<String, Object>> entity =
+            new HttpEntity<>(body, headers);
+
+    ResponseEntity<Map> response = rest.exchange(
+            url,
+            HttpMethod.POST,
+            entity,
+            Map.class
+    );
+
+    return response.getBody().get("public_key").toString();
+}
+
+
 }

@@ -8,13 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-import java.util.Map;
+import java.util.*;
 import java.time.LocalDateTime;
 import java.time.Duration;
-import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200") // Apenas UM
+//@CrossOrigin(origins = "http://localhost:4200") // Apenas UM
+@CrossOrigin(origins = "${FRONTEND_URL:http://localhost:4200}")
+
 @RestController
 @RequestMapping("/api/pages")
 public class CartoesController {
@@ -72,7 +72,23 @@ public class CartoesController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    @GetMapping("/prototipo/check/{id}")
+    @GetMapping("/access/{serialKey}")
+    public ResponseEntity<?> accessBySerial(@PathVariable String serialKey) {
+    Optional<PageData> optional = repository.findBySerialKey(serialKey);
+
+    if (optional.isEmpty()) {
+        return ResponseEntity.status(404).body(Map.of(
+            "valid", false,
+            "message", "Chave de acesso inválida."
+        ));
+    }
+
+    return ResponseEntity.ok(Map.of(
+        "valid", true,
+        "page", optional.get()
+    ));
+}
+    /*@GetMapping("/prototipo/check/{id}")
 public ResponseEntity<?> checkPrototipo(@PathVariable Long id) {
     Optional<PageData> optional = repository.findById(id);
 
@@ -121,5 +137,43 @@ public ResponseEntity<?> checkPrototipo(@PathVariable Long id) {
             "expireAt", expiresAt.toString(),
             "page", page
     ));
+}*/
+@PutMapping("/update/{id}")
+public ResponseEntity<?> updatePage(
+        @PathVariable Long id,
+        @RequestBody PageRequestDTO dto
+) {
+    Optional<PageData> optional = repository.findById(id);
+
+    if (optional.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                Map.of("message", "Página não encontrada.")
+        );
+    }
+
+    PageData page = optional.get();
+
+    // Atualiza apenas os campos que existem no DTO
+    page.setNomeCartao(dto.getNomeCartao());
+    page.setInstagram(dto.getInstagram());
+    page.setWhatsapp(dto.getWhatsapp());
+    page.setFacebook(dto.getFacebook());
+    page.setLinkedin(dto.getLinkedin());
+    page.setTiktok(dto.getTiktok());
+    page.setYoutube(dto.getYoutube());
+    page.setSite(dto.getSite());
+    page.setType(dto.getType());
+    page.setPrototipo(dto.getPrototipo());
+    page.setBackgroundColor(dto.getBackgroundColor());
+
+    PageData updated = repository.save(page);
+
+    return ResponseEntity.ok(
+            Map.of(
+                    "message", "Página atualizada com sucesso.",
+                    "page", updated
+            )
+    );
 }
+
 }

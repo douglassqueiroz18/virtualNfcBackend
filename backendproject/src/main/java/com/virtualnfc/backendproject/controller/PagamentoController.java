@@ -38,4 +38,11 @@ public class PagamentoController {
         Map<String, Object> status = pagBankService.consultarStatus(orderId);
         return ResponseEntity.ok(status);
     }
+    @GetMapping("/public-key")
+    public ResponseEntity<Map<String, Object>> getPublicKey() {
+        String key = pagBankService.getPublicKey();
+        return ResponseEntity.ok(Map.of("public_key", key));
+    }
+
+
 }

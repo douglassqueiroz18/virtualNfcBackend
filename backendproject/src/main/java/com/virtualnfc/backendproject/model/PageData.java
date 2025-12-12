@@ -15,6 +15,7 @@ public class PageData {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.serialKey = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
     
 
@@ -30,6 +31,12 @@ public class PageData {
     private String site;
     private String prototipo;
     private LocalDateTime createdAt;
+    private String serialKey;
+    private String backgroundColor;
+
+    public String getSerialKey() { return serialKey; }
+    public void setSerialKey(String serialKey) { this.serialKey = serialKey; }
+
     public PageData() {}
 
     public Long getId() { return id; }
@@ -66,6 +73,8 @@ public class PageData {
     public void setPrototipo(String prototipo) { this.prototipo = prototipo; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
-
+    
+    public String getBackgroundColor() { return backgroundColor; }
+    public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
     
 }

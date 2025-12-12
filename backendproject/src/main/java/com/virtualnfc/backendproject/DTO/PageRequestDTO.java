@@ -14,6 +14,8 @@ public class PageRequestDTO {
     private String site;
     private String prototipo;
     private LocalDateTime createdAt;
+    private String serialKey;
+    private String backgroundColor;
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
@@ -46,4 +48,11 @@ public class PageRequestDTO {
     public void setPrototipo(String prototipo) { this.prototipo = prototipo; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public String getSerialKey() { return serialKey; }
+    public void setSerialKey(String serialKey) { this.serialKey = serialKey; }
+    
+    public String getBackgroundColor() { return backgroundColor; }
+    public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
+
 }
