@@ -150,6 +150,12 @@ public ResponseEntity<?> updatePage(
                 Map.of("message", "Página não encontrada.")
         );
     }
+    if (dto.getLogoBase64() != null && dto.getLogoBase64().length() > 1_500_000) {
+    return ResponseEntity.badRequest().body(
+        Map.of("message", "Logo excede o tamanho permitido.")
+    );
+    }
+
 
     PageData page = optional.get();
 
@@ -165,7 +171,9 @@ public ResponseEntity<?> updatePage(
     page.setType(dto.getType());
     page.setPrototipo(dto.getPrototipo());
     page.setBackgroundColor(dto.getBackgroundColor());
-
+    if (dto.getLogoBase64() != null) {
+        page.setLogoBase64(dto.getLogoBase64());
+    }
     PageData updated = repository.save(page);
 
     return ResponseEntity.ok(
@@ -175,5 +183,6 @@ public ResponseEntity<?> updatePage(
             )
     );
 }
+
 
 }

@@ -16,6 +16,7 @@ public class PageRequestDTO {
     private LocalDateTime createdAt;
     private String serialKey;
     private String backgroundColor;
+    private String logoBase64;
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
@@ -55,4 +56,6 @@ public class PageRequestDTO {
     public String getBackgroundColor() { return backgroundColor; }
     public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
 
+    public String getLogoBase64() { return logoBase64; }
+    public void setLogoBase64(String logoBase64) { this.logoBase64 = logoBase64; }
 }

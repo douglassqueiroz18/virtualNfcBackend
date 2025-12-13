@@ -33,7 +33,10 @@ public class PageData {
     private LocalDateTime createdAt;
     private String serialKey;
     private String backgroundColor;
-
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "LONGTEXT")
+    private String logoBase64;
     public String getSerialKey() { return serialKey; }
     public void setSerialKey(String serialKey) { this.serialKey = serialKey; }
 
@@ -77,4 +80,6 @@ public class PageData {
     public String getBackgroundColor() { return backgroundColor; }
     public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
     
+    public String getLogoBase64() { return logoBase64; }
+    public void setLogoBase64(String logoBase64) { this.logoBase64 = logoBase64;}
 }
