@@ -25,7 +25,7 @@ services:
       MYSQLPORT: 3306
       MYSQLDATABASE: loja_db
       MYSQLUSER: loja_user
-      MYSQLPASSWORD: 123
+      MYSQLPASSWORD: 27132713
       PAGBANK_TOKEN: ${PAGBANK_TOKEN}
     ports:
       - "8080:8080"
