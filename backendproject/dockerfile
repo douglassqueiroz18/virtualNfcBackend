@@ -1,25 +1,10 @@
-FROM eclipse-temurin:21-jdk as build
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
-
-# Copia primeiro o Maven wrapper e o pom.xml
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
-
-RUN chmod +x mvnw
-RUN ./mvnw dependency:go-offline
-
-# Agora copia o código
-COPY src src
-
-# Compila
+COPY . .
 RUN ./mvnw clean package -DskipTests
 
-# Runtime
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]

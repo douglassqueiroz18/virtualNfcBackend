@@ -3,10 +3,7 @@ version: "3.9"
 services:
   mysql:
     image: mysql:8.0
-    container_name: meu-mysql
     restart: always
-    ports:
-      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: loja_db
@@ -14,6 +11,24 @@ services:
       MYSQL_PASSWORD: 123
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - backend-net
+
+  backend:
+    build: .
+    container_name: backend-app
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      MYSQLHOST: mysql
+      MYSQLPORT: 3306
+      MYSQLDATABASE: loja_db
+      MYSQLUSER: loja_user
+      MYSQLPASSWORD: 123
+      PAGBANK_TOKEN: ${PAGBANK_TOKEN}
+    ports:
+      - "8080:8080"
     networks:
       - backend-net
 
