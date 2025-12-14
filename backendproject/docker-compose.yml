@@ -8,7 +8,7 @@ services:
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: loja_db
       MYSQL_USER: loja_user
-      MYSQL_PASSWORD: 123
+      MYSQL_PASSWORD: 27132713
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -21,11 +21,11 @@ services:
     depends_on:
       - mysql
     environment:
-      MYSQLHOST: mysql
-      MYSQLPORT: 3306
-      MYSQLDATABASE: loja_db
-      MYSQLUSER: loja_user
-      MYSQLPASSWORD: 27132713
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: loja_db
+      MYSQL_USER: loja_user
+      MYSQL_PASSWORD: 27132713
       PAGBANK_TOKEN: ${PAGBANK_TOKEN}
     ports:
       - "8080:8080"
