@@ -1,6 +1,7 @@
 services:
   backend:
-    image: backend-app
+    image: backend
+    build: .
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       MYSQL_HOST: ${MYSQL_HOST}
