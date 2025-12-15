@@ -1,40 +1,10 @@
-version: "3.9"
-
 services:
-  mysql:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: loja_db
-      MYSQL_USER: loja_user
-      MYSQL_PASSWORD: 27132713
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - app-net
-
   backend:
-    build: .
-    container_name: backend-app
-    restart: always
-    depends_on:
-      - mysql
+    image: backend-app
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: loja_db
-      MYSQL_USER: loja_user
-      MYSQL_PASSWORD: 27132713
-      PAGBANK_TOKEN: ${PAGBANK_TOKEN}
-    ports:
-      - "8080:8080"
-    networks:
-      - app-net
-
-volumes:
-  mysql_data:
-
-networks:
-  app-net:
-    external: true
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
