@@ -1,7 +1,6 @@
 services:
   backend:
     image: backend
-    container_name: backend-app
     build: .
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
