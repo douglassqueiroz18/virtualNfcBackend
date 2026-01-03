@@ -16,7 +16,8 @@ public class PageRequestDTO {
     private LocalDateTime createdAt;
     private String serialKey;
     private String backgroundColor;
-
+    private String logoPath;
+    private String backgroundPath;
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
@@ -55,4 +56,9 @@ public class PageRequestDTO {
     public String getBackgroundColor() { return backgroundColor; }
     public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
 
+    public String getLogoPath() { return logoPath; }
+    public void setLogoPath(String logoPath) { this.logoPath = logoPath; }
+
+    public String getBackgroundPath() { return backgroundPath; }
+    public void setBackgroundPath(String backgroundPath) { this.backgroundPath = backgroundPath; }
 }

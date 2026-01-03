@@ -1,17 +1,34 @@
 package com.virtualnfc.backendproject.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.virtualnfc.backendproject.dto.PageRequestDTO;
 import com.virtualnfc.backendproject.model.PageData;
 import com.virtualnfc.backendproject.repository.PageDataRepository;
+import com.virtualnfc.backendproject.service.FileStorageService;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.Duration;
 
+import java.nio.file.*;
+import java.io.File;
 //@CrossOrigin(origins = "http://localhost:4200") // Apenas UM
 @CrossOrigin(origins = "${FRONTEND_URL:http://localhost:4200}")
 
@@ -20,10 +37,13 @@ import java.time.Duration;
 public class CartoesController {
 
     private final PageDataRepository repository;
-
-    public CartoesController(PageDataRepository repository) {
+    private final FileStorageService fileStorageService;
+    private static final Logger log = LoggerFactory.getLogger(CartoesController.class);
+    public CartoesController(PageDataRepository repository, FileStorageService fileStorageService) {
         this.repository = repository;
+        this.fileStorageService = fileStorageService;
     }
+    
 
     @PostMapping("/create")
     public ResponseEntity<PageData> createPage(@RequestBody PageRequestDTO dto) {
@@ -138,22 +158,43 @@ public ResponseEntity<?> checkPrototipo(@PathVariable Long id) {
             "page", page
     ));
 }*/
-@PutMapping("/update/{id}")
-public ResponseEntity<?> updatePage(
+@PutMapping(
+    value = "/update/{id}",
+    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+)
+public ResponseEntity<PageData> updatePage(
         @PathVariable Long id,
-        @RequestBody PageRequestDTO dto
+
+        @RequestPart("dados") PageRequestDTO dto,
+        @RequestPart(value = "logo", required = false) MultipartFile logoFile,
+        @RequestPart(value = "background", required = false) MultipartFile bgFile
 ) {
-    Optional<PageData> optional = repository.findById(id);
 
-    if (optional.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Map.of("message", "Página não encontrada.")
-        );
-    }
+    log.info("🔄 Update page iniciado - id={}", id);
 
-    PageData page = optional.get();
+    log.debug("📦 DTO recebido: nomeCartao={}, instagram={}, youtube={}, backgroundColor={}",
+            dto.getNomeCartao(),
+            dto.getInstagram(),
+            dto.getYoutube(),
+            dto.getBackgroundColor()
+    );
 
-    // Atualiza apenas os campos que existem no DTO
+    log.debug("🖼️ Logo recebido: {}",
+            (logoFile != null ? logoFile.getOriginalFilename() : "NÃO ENVIADO"));
+
+    log.debug("🎨 Background recebido: {}",
+            (bgFile != null ? bgFile.getOriginalFilename() : "NÃO ENVIADO"));
+    
+    PageData page = repository.findById(id)
+            .orElseThrow(() -> {
+                log.warn("❌ Página não encontrada - id={}", id);
+                return new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Página não encontrada");
+            });
+
+    log.debug("📄 Página carregada do banco - id={}, nomeCartao={}",
+            page.getId(), page.getNomeCartao());
+
     page.setNomeCartao(dto.getNomeCartao());
     page.setInstagram(dto.getInstagram());
     page.setWhatsapp(dto.getWhatsapp());
@@ -166,14 +207,18 @@ public ResponseEntity<?> updatePage(
     page.setPrototipo(dto.getPrototipo());
     page.setBackgroundColor(dto.getBackgroundColor());
 
-    PageData updated = repository.save(page);
+    if (logoFile != null && !logoFile.isEmpty()) {
+        page.setLogoPath(fileStorageService.saveFile(logoFile, "logo", id));
+    }
 
-    return ResponseEntity.ok(
-            Map.of(
-                    "message", "Página atualizada com sucesso.",
-                    "page", updated
-            )
-    );
+    if (bgFile != null && !bgFile.isEmpty()) {
+        page.setBackgroundPath(fileStorageService.saveFile(bgFile, "bg", id));
+    }
+
+    return ResponseEntity.ok(repository.save(page));
 }
+
+
+
 
 }
